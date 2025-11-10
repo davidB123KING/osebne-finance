@@ -33,8 +33,6 @@ Aplikacija za upravljanje osebnih financ, izdelana v **Next.js**, ki uporabnikom
 | Frontend | [Next.js 14](https://nextjs.org/) |
 | Backend | API Routes (Next.js) |
 | Baza podatkov | [PostgreSQL](https://www.postgresql.org/) |
-| ORM | [Prisma](https://www.prisma.io/) |
-| Avtorizacija | JWT + bcrypt |
 | Gostovanje | [Vercel](https://vercel.com/) |
 | Stilizacija | Tailwind CSS |
 
