@@ -1,30 +1,36 @@
-import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { NextRequest, NextResponse } from "next/server";
+import { neon } from "@neondatabase/serverless";
 import bcrypt from "bcryptjs";
 
-const USERS_FILE = path.join(process.cwd(), "data", "users.json");
+const sql = neon(process.env.DATABASE_URL!);
 
-export async function POST(req: Request) {
-  const { username, password } = await req.json();
+export async function POST(req: NextRequest) {
+  try {
+    const { name, email, password } = await req.json();
 
-  // Če mapa "data" še ne obstaja, jo ustvarimo
-  if (!fs.existsSync(path.dirname(USERS_FILE))) {
-    fs.mkdirSync(path.dirname(USERS_FILE));
+    if (!name || !email || !password) {
+      return NextResponse.json(
+        { success: false, message: "Manjkajoči podatki." },
+        { status: 400 }
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await sql`
+      INSERT INTO users (name, email, password)
+      VALUES (${name}, ${email}, ${hashedPassword})
+      RETURNING id, name, email;
+    `;
+
+    return NextResponse.json({
+      success: true,
+      user: user[0],
+    });
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 }
+    );
   }
-
-  let users: any[] = [];
-  if (fs.existsSync(USERS_FILE)) {
-    users = JSON.parse(fs.readFileSync(USERS_FILE, "utf-8"));
-  }
-
-  if (users.find((u) => u.username === username)) {
-    return NextResponse.json({ message: "Uporabnik že obstaja." }, { status: 400 });
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-  users.push({ username, password: hashedPassword });
-  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
-
-  return NextResponse.json({ message: "Registracija uspešna!" });
 }
