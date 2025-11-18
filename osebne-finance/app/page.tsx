@@ -4,10 +4,10 @@ export default function Home() {
       <div className="text-center p-8 rounded-2xl shadow-md bg-white">
         <h1 className="text-4xl font-bold mb-4">Moja Next.js Stran</h1>
         <p className="text-lg text-gray-600 mb-6">
-          Dobrodošli! To je začetna verzija brez funkcionalnosti.
+          Dobrodošli! Dodajam login in register
         </p>
         <p className="text-sm text-gray-500">
-          (Kasneje bomo dodali File Upload in CRUD funkcionalnosti.)
+          
         </p>
       </div>
     </main>
