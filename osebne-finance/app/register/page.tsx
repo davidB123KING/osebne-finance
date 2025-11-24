@@ -1,48 +1,47 @@
 "use client";
+
 import { useState } from "react";
 
 export default function RegisterPage() {
-  const [formData, setFormData] = useState({ username: "", password: "" });
-  const [message, setMessage] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [msg, setMsg] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function handleRegister(e: any) {
     e.preventDefault();
+
     const res = await fetch("/api/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
+      body: JSON.stringify({ email, password }),
     });
+
     const data = await res.json();
-    setMessage(data.message);
-  };
+    setMsg(data.message || data.error);
+  }
 
   return (
-    <main style={{ textAlign: "center", marginTop: "60px" }}>
-      <h1>Registracija</h1>
-      <form onSubmit={handleSubmit} style={{ marginTop: "20px" }}>
+    <div className="flex flex-col items-center justify-center h-screen">
+      <h1 className="text-2xl mb-4">Registracija</h1>
+
+      <form onSubmit={handleRegister} className="flex flex-col gap-4 w-64">
         <input
-          type="text"
-          placeholder="Uporabniško ime"
-          value={formData.username}
-          onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-          required
-          style={{ padding: "8px", marginBottom: "10px" }}
+          type="email"
+          className="border p-2 rounded"
+          placeholder="Email"
+          onChange={(e) => setEmail(e.target.value)}
         />
-        <br />
+
         <input
           type="password"
+          className="border p-2 rounded"
           placeholder="Geslo"
-          value={formData.password}
-          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-          required
-          style={{ padding: "8px", marginBottom: "10px" }}
+          onChange={(e) => setPassword(e.target.value)}
         />
-        <br />
-        <button type="submit" style={{ padding: "8px 16px" }}>
-          Registriraj se
-        </button>
+
+        <button className="bg-green-600 text-white p-2 rounded">Registracija</button>
       </form>
-      {message && <p style={{ marginTop: "10px" }}>{message}</p>}
-    </main>
+
+      {msg && <p className="mt-4">{msg}</p>}
+    </div>
   );
 }

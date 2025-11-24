@@ -1,36 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
-import { neon } from "@neondatabase/serverless";
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-const sql = neon(process.env.DATABASE_URL!);
-
-export async function POST(req: NextRequest) {
+export async function POST(req: Request) {
   try {
-    const { name, email, password } = await req.json();
+    const { email, password } = await req.json();
 
-    if (!name || !email || !password) {
-      return NextResponse.json(
-        { success: false, message: "Manjkajoči podatki." },
-        { status: 400 }
-      );
-    }
+    const hashed = await bcrypt.hash(password, 10);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await sql`
-      INSERT INTO users (name, email, password)
-      VALUES (${name}, ${email}, ${hashedPassword})
-      RETURNING id, name, email;
-    `;
-
-    return NextResponse.json({
-      success: true,
-      user: user[0],
+    await prisma.user.create({
+      data: { email, password: hashed },
     });
-  } catch (error: any) {
-    return NextResponse.json(
-      { success: false, message: error.message },
-      { status: 500 }
-    );
+
+    return NextResponse.json({ message: "Registracija uspešna" });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
